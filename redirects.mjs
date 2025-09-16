@@ -1,6 +1,11 @@
 // Auto-generated redirects from slug_updates_rows.csv
 export const redirects = [
   {
+    "source": "/",
+    "destination": "/blog",
+    "permanent": true
+  },
+  {
     "source": "/blog/1-day-in-dubai",
     "destination": "/blog/uae/1-days-dubai-itinerary",
     "permanent": true

@@ -2,6 +2,8 @@ import { redirects as urlRedirects } from './redirects.mjs';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Enable standalone output for Docker deployment
+  output: 'standalone',
   eslint: {
     ignoreDuringBuilds: true,
   },

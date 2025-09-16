@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  cuddlynest-blog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        VERSION: ${VERSION:-latest}
+        VCS_REF: ${VCS_REF:-$(git rev-parse --short HEAD)}
+    container_name: cuddlynest-blog
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      # Add your environment variables here
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    networks:
+      - cuddlynest-network
+    healthcheck:
+      test: ["CMD", "node", "healthcheck.js"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cuddlynest.rule=Host(`your-domain.com`)"
+      - "traefik.http.routers.cuddlynest.tls=true"
+      - "traefik.http.routers.cuddlynest.tls.certresolver=letsencrypt"
+
+networks:
+  cuddlynest-network:
+    driver: bridge
+
+# Example for development with hot reload
+# Uncomment the service below for development mode
+# cuddlynest-blog-dev:
+#   build:
+#     context: .
+#     dockerfile: Dockerfile.dev  # You'd need to create this for dev mode
+#   container_name: cuddlynest-blog-dev
+#   restart: unless-stopped
+#   ports:
+#     - "3001:3000"
+#   volumes:
+#     - .:/app
+#     - /app/node_modules
+#     - /app/.next
+#   environment:
+#     - NODE_ENV=development
+#   command: npm run dev

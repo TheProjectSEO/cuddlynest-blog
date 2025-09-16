@@ -166,6 +166,23 @@ docker-compose up -d --scale cuddlynest-blog=3
 
 ### Common Issues
 
+#### Build Fails: "npm ci requires package-lock.json" ✅ FIXED
+This was a critical issue that has been resolved. The error occurred because:
+- `package-lock.json` was excluded from git repository
+- Docker build tried to use `npm ci` without the lock file
+
+**Solution Applied:**
+- Added `package-lock.json` to repository
+- Dockerfile now automatically detects and handles both scenarios:
+  - ✅ With lock file: Uses `npm ci` (fast, reliable)  
+  - ⚠️ Without lock file: Falls back to `npm install`
+
+```bash
+# If you still see this error, pull latest changes:
+git pull origin main
+docker-compose up --build
+```
+
 #### Container Won't Start
 ```bash
 # Check logs
@@ -194,6 +211,20 @@ docker build --no-cache -t cuddlynest-blog .
 
 # Check .dockerignore is present
 # Verify all files are committed to git
+
+# Verify package-lock.json exists
+ls -la package-lock.json
+
+# Check Docker build logs for specific errors
+docker-compose up --build
+```
+
+#### Docker Compose Version Warning ✅ FIXED
+```bash
+# Old warning (now fixed):
+# WARN[0000] the attribute `version` is obsolete, it will be ignored
+
+# This warning has been resolved by removing the obsolete version attribute
 ```
 
 ### Performance Issues
@@ -222,6 +253,40 @@ docker run --rm -v cuddlynest_data:/data alpine tar czf - -C /data . > backup.ta
 
 # Restore from backup
 docker run --rm -v cuddlynest_data:/data alpine sh -c "cd /data && tar xzf -" < backup.tar.gz
+```
+
+## ✅ Deployment Verification
+
+After deploying, verify everything works:
+
+```bash
+# 1. Check container is running
+docker ps | grep cuddlynest-blog
+
+# 2. Test health endpoint  
+curl http://localhost:3000/api/health
+# Expected: {"status":"healthy","timestamp":"..."}
+
+# 3. Test main application
+curl http://localhost:3000
+# Expected: HTTP redirect to /blog
+
+# 4. Check container logs for errors
+docker logs cuddlynest-blog | tail -20
+
+# 5. Monitor resource usage
+docker stats cuddlynest-blog
+```
+
+### Quick Deployment Test
+```bash
+# Complete deployment test
+git clone https://github.com/TheProjectSEO/cuddlynest-blog.git
+cd cuddlynest-blog
+cp .env.example .env.local
+# Edit .env.local with your values
+docker-compose up -d
+curl http://localhost:3000/api/health
 ```
 
 ## 📞 Support & Contacts

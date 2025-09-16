@@ -16,7 +16,14 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 
 # Install dependencies with production optimizations
-RUN npm ci --only=production --ignore-scripts && \
+# Use npm ci if package-lock.json exists, otherwise npm install
+RUN if [ -f package-lock.json ]; then \
+        echo "📦 Installing with npm ci (using lock file)" && \
+        npm ci --omit=dev --ignore-scripts; \
+    else \
+        echo "⚠️  No lock file found, using npm install (less reliable)" && \
+        npm install --omit=dev --ignore-scripts; \
+    fi && \
     npm cache clean --force
 
 # ==========================================
@@ -33,7 +40,14 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm ci --ignore-scripts
+# Use npm ci if package-lock.json exists, otherwise npm install
+RUN if [ -f package-lock.json ]; then \
+        echo "📦 Building with npm ci (using lock file)" && \
+        npm ci --ignore-scripts; \
+    else \
+        echo "⚠️  Building with npm install (no lock file)" && \
+        npm install --ignore-scripts; \
+    fi
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED 1

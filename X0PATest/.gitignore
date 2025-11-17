@@ -1,0 +1,22 @@
+# System files
+.DS_Store
+.claude/
+.localized
+
+# Documentation files
+*.md
+
+# CSV files (ignore all except comprehensive ones)
+*.csv
+!comprehensive-interview-questions.csv
+!comprehensive-job-descriptions.csv
+
+# HTML and CSS files
+*.html
+*.css
+
+# Semantic internal linking
+semantic-internal-linking/
+
+# Reference files
+X0PA-Web-Dev/

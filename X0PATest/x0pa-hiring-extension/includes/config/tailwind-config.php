@@ -1,0 +1,1 @@
+<script> tailwind.config = { theme: { extend: { colors: { 'primary': '#173b8c', 'dark': '#17141c', 'accent': '#f59e0a', 'navy': '#172b69', 'gray': '#a3a1a8', 'purple-dark': '#1a1238', 'blue-dark': '#171f54', 'teal': '#61adb8', } } } } </script>
